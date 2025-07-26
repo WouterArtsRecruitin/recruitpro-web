@@ -1,0 +1,1436 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlowMaster Pro - Smart Recruitment Intelligence Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #1E3A8A;
+            --primary-light: #3B82F6;
+            --secondary: #FF6B35;
+            --secondary-light: #F59E0B;
+            --accent: #10B981;
+            --gray-50: #F8FAFC;
+            --gray-100: #F1F5F9;
+            --gray-200: #E2E8F0;
+            --gray-300: #CBD5E1;
+            --gray-700: #374151;
+            --gray-900: #1F2937;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--primary) 0%, #2563EB 50%, var(--primary-light) 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background */
+        .background-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .floating-shape {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .floating-shape:nth-child(1) {
+            width: 80px;
+            height: 80px;
+            top: 20%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .floating-shape:nth-child(2) {
+            width: 120px;
+            height: 120px;
+            top: 60%;
+            right: 15%;
+            animation-delay: 2s;
+        }
+
+        .floating-shape:nth-child(3) {
+            width: 60px;
+            height: 60px;
+            bottom: 30%;
+            left: 20%;
+            animation-delay: 4s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 40px 0;
+            color: white;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .logo-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-text {
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+
+        .tagline {
+            font-size: 18px;
+            opacity: 0.9;
+            font-weight: 500;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 30px 0;
+            backdrop-filter: blur(10px);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--secondary), var(--secondary-light));
+            border-radius: 4px;
+            transition: width 0.8s ease;
+            width: 0%;
+        }
+
+        .progress-text {
+            color: white;
+            font-size: 14px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        /* Cards */
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 40px;
+            margin: 30px 0;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Step 1: Introduction */
+        .intro-card {
+            text-align: center;
+        }
+
+        .intro-title {
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        .intro-subtitle {
+            font-size: 20px;
+            color: var(--gray-700);
+            margin-bottom: 30px;
+            font-weight: 500;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin: 40px 0;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 20px;
+            background: var(--gray-50);
+            border-radius: 15px;
+        }
+
+        .stat-number {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--secondary);
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--gray-700);
+            font-weight: 500;
+        }
+
+        .cta-button {
+            background: linear-gradient(135deg, var(--secondary), var(--secondary-light));
+            color: white;
+            padding: 18px 40px;
+            border: none;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 25px rgba(255, 107, 53, 0.3);
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(255, 107, 53, 0.4);
+        }
+
+        /* Step 2: Company Info */
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid var(--gray-200);
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+        }
+
+        .company-size-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .size-option {
+            padding: 20px;
+            border: 2px solid var(--gray-200);
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .size-option:hover {
+            border-color: var(--primary);
+            background: var(--gray-50);
+        }
+
+        .size-option.selected {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: white;
+        }
+
+        .size-number {
+            font-size: 24px;
+            font-weight: 800;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .size-label {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* Step 3: Sector Selection */
+        .sector-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .sector-card {
+            padding: 25px;
+            border: 2px solid var(--gray-200);
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+            text-align: center;
+        }
+
+        .sector-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .sector-card.selected {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: white;
+        }
+
+        .sector-icon {
+            font-size: 40px;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .sector-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .sector-description {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        /* Step 4: Candidate Preview */
+        .candidate-preview {
+            background: linear-gradient(135deg, var(--gray-50) 0%, white 100%);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+
+        .preview-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .preview-title {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .preview-subtitle {
+            font-size: 16px;
+            color: var(--gray-700);
+            font-weight: 500;
+        }
+
+        .candidate-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .candidate-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            border: 1px solid var(--gray-200);
+            transition: all 0.3s ease;
+        }
+
+        .candidate-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+        }
+
+        .candidate-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .candidate-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 800;
+            font-size: 18px;
+        }
+
+        .candidate-info h4 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 4px;
+        }
+
+        .candidate-role {
+            font-size: 14px;
+            color: var(--gray-700);
+            font-weight: 500;
+        }
+
+        .candidate-skills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .skill-tag {
+            padding: 4px 12px;
+            background: var(--gray-100);
+            border-radius: 20px;
+            font-size: 12px;
+            color: var(--gray-700);
+            font-weight: 500;
+        }
+
+        .match-score {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .score-bar {
+            flex: 1;
+            height: 6px;
+            background: var(--gray-200);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .score-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), #34D399);
+            border-radius: 3px;
+        }
+
+        .score-text {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        /* Step 5: Service Selection */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+
+        .service-card {
+            background: white;
+            border: 2px solid var(--gray-200);
+            border-radius: 20px;
+            padding: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .service-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .service-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .service-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .service-card.selected {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: white;
+        }
+
+        .service-card.selected::before {
+            transform: scaleX(1);
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .service-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            background: linear-gradient(135deg, var(--secondary), var(--secondary-light));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+
+        .service-card.selected .service-icon {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .service-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .service-description {
+            font-size: 15px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            opacity: 0.8;
+        }
+
+        .service-features {
+            list-style: none;
+            margin-bottom: 20px;
+        }
+
+        .service-features li {
+            padding: 5px 0;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .service-features li::before {
+            content: '✓';
+            color: var(--accent);
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .service-card.selected .service-features li::before {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .service-price {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .service-card.selected .service-price {
+            color: white;
+        }
+
+        /* Contact Form */
+        .contact-form {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            border-radius: 20px;
+            padding: 40px;
+            color: white;
+        }
+
+        .contact-form .form-input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .contact-form .form-input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .contact-form .form-input:focus {
+            border-color: rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .contact-form .form-label {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        /* Success State */
+        .success-state {
+            text-align: center;
+            padding: 60px 40px;
+        }
+
+        .success-icon {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), #34D399);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 30px;
+            font-size: 50px;
+            color: white;
+        }
+
+        .success-title {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        .success-message {
+            font-size: 18px;
+            color: var(--gray-700);
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        /* Navigation */
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .nav-button {
+            padding: 12px 30px;
+            border: 2px solid var(--primary);
+            border-radius: 50px;
+            background: white;
+            color: var(--primary);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-button:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .nav-button.primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .nav-button.primary:hover {
+            background: var(--primary-light);
+        }
+
+        /* Hidden states */
+        .hidden {
+            display: none;
+        }
+
+        /* Loading Animation */
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Live Chat Bubble */
+        .chat-bubble {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--secondary), var(--secondary-light));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(255, 107, 53, 0.3);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .chat-bubble:hover {
+            transform: scale(1.1);
+            box-shadow: 0 15px 35px rgba(255, 107, 53, 0.4);
+        }
+
+        .chat-bubble::before {
+            content: '💬';
+            font-size: 24px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 15px;
+            }
+            
+            .intro-title {
+                font-size: 28px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+            
+            .sector-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="background-animation">
+        <div class="floating-shape"></div>
+        <div class="floating-shape"></div>
+        <div class="floating-shape"></div>
+    </div>
+
+    <!-- Live Chat Bubble -->
+    <div class="chat-bubble" onclick="openChat()"></div>
+
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo-container">
+                <div class="logo-icon">
+                    <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                        <path d="M8 15 L20 25 L32 15" stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/>
+                        <path d="M12 20 L20 28 L28 20" stroke="#FF6B35" stroke-width="2" fill="none" stroke-linecap="round"/>
+                        <circle cx="20" cy="20" r="2" fill="white"/>
+                    </svg>
+                </div>
+                <h1 class="logo-text">FlowMaster Pro</h1>
+            </div>
+            <p class="tagline">De Smart Recruitment Intelligence Platform</p>
+        </header>
+
+        <!-- Progress Bar -->
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text" id="progressText">Stap 1 van 5</div>
+        </div>
+
+        <!-- Step 1: Introduction -->
+        <div class="card intro-card" id="step1">
+            <h2 class="intro-title">Ontdek Je Recruitment Potentieel in 60 Seconden</h2>
+            <p class="intro-subtitle">Krijg direct inzicht in je recruitment maturity én zie precies welke kandidaten je zou kunnen aantrekken</p>
+            
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <span class="stat-number">2,500+</span>
+                    <span class="stat-label">HR Leaders</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">340%</span>
+                    <span class="stat-label">ROI Verbetering</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">45%</span>
+                    <span class="stat-label">Snellere Hiring</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">60s</span>
+                    <span class="stat-label">Smart Assessment</span>
+                </div>
+            </div>
+
+            <button class="cta-button" onclick="nextStep()">Start Smart Assessment 🚀</button>
+        </div>
+
+        <!-- Step 2: Company Information -->
+        <div class="card hidden" id="step2">
+            <h2 class="intro-title">Vertel Ons Over Je Organisatie</h2>
+            <p class="intro-subtitle">Deze informatie helpt ons de perfecte strategie voor jou te bepalen</p>
+
+            <div class="form-group">
+                <label class="form-label">Bedrijfsnaam</label>
+                <input type="text" class="form-input" id="companyName" placeholder="Jouw bedrijfsnaam">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Jouw Naam</label>
+                <input type="text" class="form-input" id="contactName" placeholder="Voor- en achternaam">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Hoeveel medewerkers heeft jullie organisatie?</label>
+                <div class="company-size-grid">
+                    <div class="size-option" onclick="selectSize('1-10')">
+                        <span class="size-number">1-10</span>
+                        <span class="size-label">Startup</span>
+                    </div>
+                    <div class="size-option" onclick="selectSize('11-50')">
+                        <span class="size-number">11-50</span>
+                        <span class="size-label">Scale-up</span>
+                    </div>
+                    <div class="size-option" onclick="selectSize('51-200')">
+                        <span class="size-number">51-200</span>
+                        <span class="size-label">Middelgroot</span>
+                    </div>
+                    <div class="size-option" onclick="selectSize('201-500')">
+                        <span class="size-number">201-500</span>
+                        <span class="size-label">Groot</span>
+                    </div>
+                    <div class="size-option" onclick="selectSize('500+')">
+                        <span class="size-number">500+</span>
+                        <span class="size-label">Enterprise</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="nav-buttons">
+                <button class="nav-button" onclick="prevStep()">Vorige</button>
+                <button class="nav-button primary" onclick="nextStep()" id="step2Next" disabled>Volgende</button>
+            </div>
+        </div>
+
+        <!-- Step 3: Sector Selection -->
+        <div class="card hidden" id="step3">
+            <h2 class="intro-title">In Welke Sector Werkt Je Organisatie?</h2>
+            <p class="intro-subtitle">Dit helpt ons sector-specifieke kandidaten en strategieën te tonen</p>
+
+            <div class="sector-grid">
+                <div class="sector-card" onclick="selectSector('tech')">
+                    <span class="sector-icon">💻</span>
+                    <h3 class="sector-name">Technology</h3>
+                    <p class="sector-description">Software, IT, SaaS, Fintech</p>
+                </div>
+                <div class="sector-card" onclick="selectSector('healthcare')">
+                    <span class="sector-icon">🏥</span>
+                    <h3 class="sector-name">Healthcare</h3>
+                    <p class="sector-description">Ziekenhuizen, Farma, Medtech</p>
+                </div>
+                <div class="sector-card" onclick="selectSector('finance')">
+                    <span class="sector-icon">🏦</span>
+                    <h3 class="sector-name">Financial Services</h3>
+                    <p class="sector-description">Banking, Insurance, Investment</p>
+                </div>
+                <div class="sector-card" onclick="selectSector('retail')">
+                    <span class="sector-icon">🛍️</span>
+                    <h3 class="sector-name">Retail & E-commerce</h3>
+                    <p class="sector-description">Webshops, Fashion, FMCG</p>
+                </div>
+                <div class="sector-card" onclick="selectSector('manufacturing')">
+                    <span class="sector-icon">🏭</span>
+                    <h3 class="sector-name">Manufacturing</h3>
+                    <p class="sector-description">Productie, Automotive, Chemie</p>
+                </div>
+                <div class="sector-card" onclick="selectSector('consulting')">
+                    <span class="sector-icon">📊</span>
+                    <h3 class="sector-name">Consulting</h3>
+                    <p class="sector-description">Management, IT, HR Consulting</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons">
+                <button class="nav-button" onclick="prevStep()">Vorige</button>
+                <button class="nav-button primary" onclick="generateCandidates()" id="step3Next" disabled>Kandidaten Genereren</button>
+            </div>
+        </div>
+
+        <!-- Step 4: Candidate Preview -->
+        <div class="card hidden" id="step4">
+            <div class="candidate-preview">
+                <div class="preview-header">
+                    <h2 class="preview-title">Jouw Potentiële Kandidaten</h2>
+                    <p class="preview-subtitle">Gebaseerd op jouw sector en bedrijfsgrootte - dit zijn voorbeelden van talent dat je zou kunnen aantrekken</p>
+                </div>
+
+                <div class="candidate-cards" id="candidateCards">
+                    <!-- Candidates will be generated here -->
+                </div>
+
+                <div style="text-align: center; margin-top: 20px;">
+                    <p style="color: var(--gray-700); font-size: 16px; font-weight: 500;">Wil je meer van deze kandidaten aantrekken? Kies hieronder wat je het meest interesseert:</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons">
+                <button class="nav-button" onclick="prevStep()">Vorige</button>
+                <button class="nav-button primary" onclick="nextStep()">Kies Jouw Service</button>
+            </div>
+        </div>
+
+        <!-- Step 5: Service Selection -->
+        <div class="card hidden" id="step5">
+            <h2 class="intro-title">Wat Interesseert Je Het Meest?</h2>
+            <p class="intro-subtitle">Kies maximaal 2 services waar je direct mee wilt starten (we geven niet alles tegelijk weg)</p>
+
+            <div class="services-grid">
+                <div class="service-card" onclick="selectService('evp')">
+                    <div class="service-icon">🎯</div>
+                    <h3 class="service-title">Employee Value Proposition</h3>
+                    <p class="service-description">Maak jouw bedrijf onweerstaanbaar voor top talent met een krachtige EVP die echt werkt.</p>
+                    <ul class="service-features">
+                        <li>Complete EVP workshop</li>
+                        <li>Kandidaat persona mapping</li>
+                        <li>Messaging strategie</li>
+                        <li>A/B testing setup</li>
+                    </ul>
+                    <div class="service-price">€2,497</div>
+                </div>
+
+                <div class="service-card" onclick="selectService('branding')">
+                    <div class="service-icon">✨</div>
+                    <h3 class="service-title">Employer Branding Scan</h3>
+                    <p class="service-description">Ontdek hoe kandidaten jouw bedrijf werkelijk zien en verbeter je online aanwezigheid.</p>
+                    <ul class="service-features">
+                        <li>360° brand perception audit</li>
+                        <li>Glassdoor optimalisatie</li>
+                        <li>LinkedIn company page boost</li>
+                        <li>Reputation management</li>
+                    </ul>
+                    <div class="service-price">€1,497</div>
+                </div>
+
+                <div class="service-card" onclick="selectService('audience')">
+                    <div class="service-icon">🔍</div>
+                    <h3 class="service-title">Doelgroep Analyse</h3>
+                    <p class="service-description">Identificeer exact waar je ideale kandidaten zich bevinden en hoe je ze bereikt.</p>
+                    <ul class="service-features">
+                        <li>Talent pool mapping</li>
+                        <li>Channel effectiveness analyse</li>
+                        <li>Competitor benchmarking</li>
+                        <li>Sourcing strategie</li>
+                    </ul>
+                    <div class="service-price">€997</div>
+                </div>
+
+                <div class="service-card" onclick="selectService('vacancy')">
+                    <div class="service-icon">📝</div>
+                    <h3 class="service-title">Vacature Optimalisatie</h3>
+                    <p class="service-description">Transformeer je vacatures van saai naar sensationeel met onze proven formule.</p>
+                    <ul class="service-features">
+                        <li>Job posting optimization</li>
+                        <li>Keyword research & SEO</li>
+                        <li>A/B testing framework</li>
+                        <li>Conversion tracking</li>
+                    </ul>
+                    <div class="service-price">€797</div>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin: 30px 0;">
+                <p style="color: var(--gray-700); font-size: 16px; font-weight: 500;">
+                    <span id="selectedCount">0</span>/2 services geselecteerd
+                </p>
+            </div>
+
+            <div class="nav-buttons">
+                <button class="nav-button" onclick="prevStep()">Vorige</button>
+                <button class="nav-button primary" onclick="nextStep()" id="step5Next" disabled>Plan Gratis Consultatie</button>
+            </div>
+        </div>
+
+        <!-- Step 6: Contact Form -->
+        <div class="card hidden" id="step6">
+            <div class="contact-form">
+                <h2 class="intro-title" style="color: white;">Claim Je Gratis Strategy Call</h2>
+                <p class="intro-subtitle" style="color: rgba(255, 255, 255, 0.9);">We nemen binnen 24 uur contact met je op om jouw persoonlijke recruitment strategie door te nemen</p>
+
+                <div class="form-group">
+                    <label class="form-label">Email Adres</label>
+                    <input type="email" class="form-input" id="contactEmail" placeholder="jouw@email.nl">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Telefoonnummer</label>
+                    <input type="tel" class="form-input" id="contactPhone" placeholder="+31 6 12345678">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Wat is je grootste recruitment uitdaging?</label>
+                    <textarea class="form-input" id="challenge" rows="4" placeholder="Bijv. we vinden geen goede developers, tijd-tot-hire is te lang, kandidaten haken af..."></textarea>
+                </div>
+
+                <div class="nav-buttons">
+                    <button class="nav-button" onclick="prevStep()">Vorige</button>
+                    <button class="nav-button primary" onclick="submitForm()">Plan Mijn Strategy Call 🚀</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 7: Success -->
+        <div class="card hidden" id="step7">
+            <div class="success-state">
+                <div class="success-icon">🎉</div>
+                <h2 class="success-title">Perfect! Je Strategy Call is Ingepland</h2>
+                <p class="success-message">
+                    Bedankt <span id="finalName"></span>! We nemen binnen 24 uur contact met je op om jouw persoonlijke recruitment strategie door te nemen. 
+                    <br><br>
+                    Check je email voor alle details en een exclusieve voorbereidingshandleiding.
+                </p>
+                
+                <div style="background: var(--gray-50); border-radius: 15px; padding: 25px; margin: 30px 0; text-align: left;">
+                    <h3 style="color: var(--primary); margin-bottom: 15px;">Wat kun je verwachten:</h3>
+                    <ul style="list-style: none; color: var(--gray-700);">
+                        <li style="padding: 8px 0;">✅ Persoonlijke recruitment maturity analyse</li>
+                        <li style="padding: 8px 0;">✅ Custom strategie voor <span id="finalCompany"></span></li>
+                        <li style="padding: 8px 0;">✅ Implementatie roadmap voor Q1 2025</li>
+                        <li style="padding: 8px 0;">✅ Exclusieve benchmark data uit onze database</li>
+                    </ul>
+                </div>
+
+                <button class="cta-button" onclick="window.location.reload()">Start Nieuwe Assessment</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentStep = 1;
+        let formData = {
+            companyName: '',
+            contactName: '',
+            companySize: '',
+            sector: '',
+            selectedServices: [],
+            contactEmail: '',
+            contactPhone: '',
+            challenge: ''
+        };
+
+        // Step navigation
+        function nextStep() {
+            if (validateCurrentStep()) {
+                hideCurrentStep();
+                currentStep++;
+                showCurrentStep();
+                updateProgress();
+            }
+        }
+
+        function prevStep() {
+            hideCurrentStep();
+            currentStep--;
+            showCurrentStep();
+            updateProgress();
+        }
+
+        function hideCurrentStep() {
+            document.getElementById(`step${currentStep}`).classList.add('hidden');
+        }
+
+        function showCurrentStep() {
+            document.getElementById(`step${currentStep}`).classList.remove('hidden');
+        }
+
+        function updateProgress() {
+            const progress = (currentStep - 1) / 6 * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('progressText').textContent = `Stap ${currentStep} van 7`;
+        }
+
+        // Validation
+        function validateCurrentStep() {
+            switch(currentStep) {
+                case 1:
+                    return true;
+                case 2:
+                    return formData.companyName && formData.contactName && formData.companySize;
+                case 3:
+                    return formData.sector;
+                case 4:
+                    return true;
+                case 5:
+                    return formData.selectedServices.length > 0 && formData.selectedServices.length <= 2;
+                case 6:
+                    return formData.contactEmail && formData.contactPhone;
+                default:
+                    return true;
+            }
+        }
+
+        // Company size selection
+        function selectSize(size) {
+            document.querySelectorAll('.size-option').forEach(el => el.classList.remove('selected'));
+            event.target.closest('.size-option').classList.add('selected');
+            formData.companySize = size;
+            
+            // Update form data
+            formData.companyName = document.getElementById('companyName').value;
+            formData.contactName = document.getElementById('contactName').value;
+            
+            // Enable next button if all fields are filled
+            updateStep2Button();
+        }
+
+        function updateStep2Button() {
+            const button = document.getElementById('step2Next');
+            const companyName = document.getElementById('companyName').value;
+            const contactName = document.getElementById('contactName').value;
+            
+            if (companyName && contactName && formData.companySize) {
+                button.disabled = false;
+            } else {
+                button.disabled = true;
+            }
+        }
+
+        // Sector selection
+        function selectSector(sector) {
+            document.querySelectorAll('.sector-card').forEach(el => el.classList.remove('selected'));
+            event.target.closest('.sector-card').classList.add('selected');
+            formData.sector = sector;
+            document.getElementById('step3Next').disabled = false;
+        }
+
+        // Generate candidates based on sector
+        function generateCandidates() {
+            const candidates = getCandidatesForSector(formData.sector);
+            const container = document.getElementById('candidateCards');
+            
+            container.innerHTML = candidates.map(candidate => `
+                <div class="candidate-card">
+                    <div class="candidate-header">
+                        <div class="candidate-avatar">${candidate.initials}</div>
+                        <div class="candidate-info">
+                            <h4>${candidate.name}</h4>
+                            <div class="candidate-role">${candidate.role}</div>
+                        </div>
+                    </div>
+                    <div class="candidate-skills">
+                        ${candidate.skills.map(skill => `<span class="skill-tag">${skill}</span>`).join('')}
+                    </div>
+                    <div class="match-score">
+                        <div class="score-bar">
+                            <div class="score-fill" style="width: ${candidate.match}%"></div>
+                        </div>
+                        <div class="score-text">${candidate.match}% match</div>
+                    </div>
+                </div>
+            `).join('');
+            
+            nextStep();
+        }
+
+        function getCandidatesForSector(sector) {
+            const candidateDb = {
+                tech: [
+                    {
+                        name: 'Sarah van der Berg',
+                        initials: 'SB',
+                        role: 'Senior Frontend Developer',
+                        skills: ['React', 'TypeScript', 'Node.js', 'AWS'],
+                        match: 94
+                    },
+                    {
+                        name: 'Kevin Janssen',
+                        initials: 'KJ',
+                        role: 'DevOps Engineer',
+                        skills: ['Kubernetes', 'Docker', 'Python', 'Azure'],
+                        match: 89
+                    },
+                    {
+                        name: 'Lisa Chen',
+                        initials: 'LC',
+                        role: 'Product Manager',
+                        skills: ['Agile', 'Analytics', 'UX Design', 'Leadership'],
+                        match: 92
+                    }
+                ],
+                healthcare: [
+                    {
+                        name: 'Dr. Emma Smits',
+                        initials: 'ES',
+                        role: 'Medical Device Specialist',
+                        skills: ['FDA Approval', 'Clinical Research', 'QA', 'Regulatory'],
+                        match: 91
+                    },
+                    {
+                        name: 'Mark de Vries',
+                        initials: 'MV',
+                        role: 'Healthcare Data Analyst',
+                        skills: ['SQL', 'HIPAA', 'Tableau', 'Statistics'],
+                        match: 87
+                    },
+                    {
+                        name: 'Anna Bakker',
+                        initials: 'AB',
+                        role: 'Clinical Trial Manager',
+                        skills: ['GCP', 'Project Management', 'Compliance', 'CAPA'],
+                        match: 93
+                    }
+                ],
+                finance: [
+                    {
+                        name: 'Thomas Visser',
+                        initials: 'TV',
+                        role: 'Risk Management Analyst',
+                        skills: ['Basel III', 'Python', 'Derivatives', 'Compliance'],
+                        match: 90
+                    },
+                    {
+                        name: 'Sophie Mulder',
+                        initials: 'SM',
+                        role: 'Investment Advisor',
+                        skills: ['Portfolio Management', 'CFA', 'Client Relations', 'ESG'],
+                        match: 88
+                    },
+                    {
+                        name: 'Jeroen van Dam',
+                        initials: 'JD',
+                        role: 'Fintech Product Owner',
+                        skills: ['Blockchain', 'Payments', 'APIs', 'Regulation'],
+                        match: 95
+                    }
+                ],
+                retail: [
+                    {
+                        name: 'Melissa Hoek',
+                        initials: 'MH',
+                        role: 'E-commerce Manager',
+                        skills: ['Shopify', 'Google Ads', 'Analytics', 'SEO'],
+                        match: 92
+                    },
+                    {
+                        name: 'Rob Hendriks',
+                        initials: 'RH',
+                        role: 'Supply Chain Analyst',
+                        skills: ['SAP', 'Logistics', 'Forecasting', 'Excel'],
+                        match: 86
+                    },
+                    {
+                        name: 'Chloe Martens',
+                        initials: 'CM',
+                        role: 'Digital Marketing Lead',
+                        skills: ['Facebook Ads', 'Influencer Marketing', 'CRO', 'Automation'],
+                        match: 91
+                    }
+                ],
+                manufacturing: [
+                    {
+                        name: 'Peter Willems',
+                        initials: 'PW',
+                        role: 'Production Engineer',
+                        skills: ['Lean Manufacturing', 'AutoCAD', 'Quality Control', 'ISO'],
+                        match: 89
+                    },
+                    {
+                        name: 'Sandra Koster',
+                        initials: 'SK',
+                        role: 'Operations Manager',
+                        skills: ['Six Sigma', 'ERP', 'Team Leadership', 'Continuous Improvement'],
+                        match: 93
+                    },
+                    {
+                        name: 'Dennis Bruin',
+                        initials: 'DB',
+                        role: 'Maintenance Technician',
+                        skills: ['PLC Programming', 'Electrical Systems', 'Preventive Maintenance', 'Safety'],
+                        match: 87
+                    }
+                ],
+                consulting: [
+                    {
+                        name: 'Isabella Torres',
+                        initials: 'IT',
+                        role: 'Management Consultant',
+                        skills: ['Strategy', 'Change Management', 'PowerBI', 'Stakeholder Management'],
+                        match: 94
+                    },
+                    {
+                        name: 'Lucas van Os',
+                        initials: 'LO',
+                        role: 'IT Consultant',
+                        skills: ['Cloud Migration', 'Cybersecurity', 'Project Management', 'ITIL'],
+                        match: 90
+                    },
+                    {
+                        name: 'Femke Groot',
+                        initials: 'FG',
+                        role: 'HR Business Partner',
+                        skills: ['Organizational Design', 'Talent Development', 'HRIS', 'Culture Change'],
+                        match: 92
+                    }
+                ]
+            };
+            
+            return candidateDb[sector] || candidateDb.tech;
+        }
+
+        // Service selection
+        function selectService(serviceId) {
+            const card = event.target.closest('.service-card');
+            const selectedServices = formData.selectedServices;
+            
+            if (card.classList.contains('selected')) {
+                // Deselect
+                card.classList.remove('selected');
+                formData.selectedServices = selectedServices.filter(id => id !== serviceId);
+            } else {
+                // Select (max 2)
+                if (selectedServices.length < 2) {
+                    card.classList.add('selected');
+                    formData.selectedServices.push(serviceId);
+                } else {
+                    alert('Je kunt maximaal 2 services selecteren.');
+                    return;
+                }
+            }
+            
+            updateServiceCounter();
+        }
+
+        function updateServiceCounter() {
+            document.getElementById('selectedCount').textContent = formData.selectedServices.length;
+            document.getElementById('step5Next').disabled = formData.selectedServices.length === 0;
+        }
+
+        // Form submission
+        function submitForm() {
+            // Collect final form data
+            formData.contactEmail = document.getElementById('contactEmail').value;
+            formData.contactPhone = document.getElementById('contactPhone').value;
+            formData.challenge = document.getElementById('challenge').value;
+            
+            if (!formData.contactEmail || !formData.contactPhone) {
+                alert('Vul je email en telefoonnummer in om door te gaan.');
+                return;
+            }
+            
+            // Show loading
+            event.target.innerHTML = '<div class="loading-spinner"></div>';
+            event.target.disabled = true;
+            
+            // Simulate API call
+            setTimeout(() => {
+                // Update success page
+                document.getElementById('finalName').textContent = formData.contactName;
+                document.getElementById('finalCompany').textContent = formData.companyName;
+                
+                // Submit to backend (replace with actual endpoint)
+                submitToBackend(formData);
+                
+                nextStep();
+            }, 2000);
+        }
+
+        function submitToBackend(data) {
+            // This would integrate with your actual backend
+            console.log('Submitting form data:', data);
+            
+            // Example Zapier webhook call
+            fetch('https://hooks.zapier.com/hooks/catch/your-webhook-id/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    ...data,
+                    timestamp: new Date().toISOString(),
+                    source: 'Smart Recruitment Engine V2'
+                })
+            }).catch(error => {
+                console.log('Webhook error:', error);
+                // Continue anyway for better UX
+            });
+        }
+
+        // Live chat functionality
+        function openChat() {
+            // Integrate with your chat system (Intercom, Drift, etc.)
+            alert('Chat functionaliteit wordt geladen...\n\nMail ons direct: info@recruitmentapk.nl\nBel ons: +31 6 12345678');
+        }
+
+        // Input event listeners
+        document.getElementById('companyName').addEventListener('input', updateStep2Button);
+        document.getElementById('contactName').addEventListener('input', updateStep2Button);
+
+        // Initialize
+        updateProgress();
+        
+        // Add some nice entrance animations
+        setTimeout(() => {
+            document.querySelector('.intro-card').style.opacity = '1';
+            document.querySelector('.intro-card').style.transform = 'translateY(0)';
+        }, 500);
+    </script>
+</body>
+</html>
