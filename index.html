@@ -4,7 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FlowMaster Pro - Advanced Recruitment Intelligence Platform</title>
+    <!-- Cache Bust: 2025-07-27 12:44 -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- PDF Generation Libraries - Multiple Fallbacks -->
+    <script src="https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -1397,7 +1402,7 @@
                     </div>
                 </div>
 
-                <div class="privacy-checkbox" onclick="togglePrivacy()">
+                <div class="privacy-checkbox">
                     <input type="checkbox" id="privacyConsent">
                     <label class="privacy-label" for="privacyConsent">
                         Ik ga akkoord met de verwerking van mijn gegevens zoals beschreven in het privacybeleid en wil graag updates ontvangen over recruitment best practices.
@@ -3105,12 +3110,12 @@
             document.getElementById('step8Next').disabled = !formData.selectedService;
         }
 
-        // Privacy consent
-        function togglePrivacy() {
+        // Privacy consent - Fixed
+        function handlePrivacyChange() {
             const checkbox = document.getElementById('privacyConsent');
-            checkbox.checked = !checkbox.checked;
             formData.privacyConsent = checkbox.checked;
             updateSubmitButton();
+            console.log('Privacy consent:', formData.privacyConsent);
         }
 
         function updateSubmitButton() {
@@ -3125,8 +3130,10 @@
             }
         }
 
-        // Form submission
+        // Form submission - FIXED
         function submitForm() {
+            console.log('submitForm called');
+            
             formData.contactEmail = document.getElementById('contactEmail').value;
             formData.contactPhone = document.getElementById('contactPhone').value;
             formData.contactMobile = document.getElementById('contactMobile').value;
@@ -3137,20 +3144,38 @@
                 return;
             }
             
-            event.target.innerHTML = '<div class="loading-spinner"></div>';
-            event.target.disabled = true;
+            // Update button state
+            const submitBtn = document.getElementById('submitButton');
+            submitBtn.innerHTML = '<div class="loading-spinner"></div>';
+            submitBtn.disabled = true;
             
             setTimeout(() => {
-                document.getElementById('finalName').textContent = formData.contactName;
-                document.getElementById('finalCompany').textContent = formData.companyName;
-                document.getElementById('finalScore').textContent = formData.totalScore;
-                
-                // Track final conversion for A/B testing
-                const leadScore = calculateLeadScore(formData);
-                abTest.trackConversion('assessment_completed', leadScore);
-                
-                submitToBackend(formData);
-                nextStep();
+                try {
+                    // Update final data
+                    document.getElementById('finalName').textContent = formData.contactName;
+                    document.getElementById('finalCompany').textContent = formData.companyName;
+                    document.getElementById('finalScore').textContent = formData.totalScore;
+                    
+                    // Track final conversion for A/B testing
+                    const leadScore = calculateLeadScore(formData);
+                    abTest.trackConversion('assessment_completed', leadScore);
+                    
+                    // Submit to backend
+                    submitToBackend(formData);
+                    
+                    // Force show bedankpagina (step 10)
+                    console.log('Showing step 10 (bedankpagina)');
+                    hideCurrentStep();
+                    currentStep = 10;
+                    showCurrentStep();
+                    updateProgress();
+                    
+                } catch (error) {
+                    console.error('Error in submitForm:', error);
+                    alert('Er is een fout opgetreden. Probeer het opnieuw.');
+                    submitBtn.innerHTML = 'Plan Mijn Strategy Call 🚀';
+                    submitBtn.disabled = false;
+                }
             }, 2000);
         }
 
@@ -3165,19 +3190,29 @@
             // Store session data
             sessionStorage.setItem('flowmasterAssessment', JSON.stringify(zapierPayload));
             
+            // PipeDrive Configuration
+            const PIPEDRIVE_CONFIG = {
+                domain: 'recruitinbv.pipedrive.com',
+                api_token: '88cd82ae86166b5d43174dc5bea91f5f6479ac09',
+                pipeline_id: 1, // Main recruitment pipeline
+                default_stage_id: 1, // Initial lead stage
+                owner_id: null // Auto-assign to account owner
+            };
+
             // Multiple webhook endpoints for different integrations
             const integrations = {
-                zapier_main: 'https://hooks.zapier.com/hooks/catch/19234567/flowmaster-main/',
-                pipedrive_sync: 'https://hooks.zapier.com/hooks/catch/19234567/pipedrive-leads/',
-                email_automation: 'https://hooks.zapier.com/hooks/catch/19234567/email-templates/',
-                backup_storage: 'https://hook.eu1.make.com/flowmaster-backup'
+                zapier_main: 'https://hooks.zapier.com/hooks/catch/23933997/uusfai9/',
+                pipedrive_sync: 'https://hooks.zapier.com/hooks/catch/23933997/uusfai9/',
+                email_automation: 'https://hooks.zapier.com/hooks/catch/23933997/uusfai9/',
+                backup_storage: 'https://hooks.zapier.com/hooks/catch/23933997/uusfai9/'
             };
             
-            // Send to Zapier main webhook with full data
+            // Send to Zapier main webhook with full data (with no-cors fallback)
             fetch(integrations.zapier_main, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(zapierPayload)
+                body: JSON.stringify(zapierPayload),
+                mode: 'no-cors'
             }).then(response => {
                 if (response.ok) {
                     console.log('Zapier main webhook successful');
@@ -3186,7 +3221,8 @@
                     return fetch(integrations.pipedrive_sync, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(pipeDrivePayload)
+                        body: JSON.stringify(pipeDrivePayload),
+                        mode: 'no-cors'
                     });
                 } else {
                     throw new Error('Zapier main webhook failed');
@@ -3376,6 +3412,12 @@
             const leadTags = generateLeadTags(data);
             
             return {
+                // PipeDrive Configuration
+                pipedrive_domain: PIPEDRIVE_CONFIG.domain,
+                pipedrive_api_token: PIPEDRIVE_CONFIG.api_token,
+                pipeline_id: PIPEDRIVE_CONFIG.pipeline_id,
+                stage_id: PIPEDRIVE_CONFIG.default_stage_id,
+                
                 // PipeDrive Person fields
                 person_name: data.contactName,
                 person_email: data.contactEmail,
@@ -3559,223 +3601,421 @@
             };
         }
         
+        // Dynamic PDF Library Loading
+        function loadPDFLibrary() {
+            return new Promise((resolve, reject) => {
+                if (window.jsPDF || window.jspdf || typeof jsPDF !== 'undefined') {
+                    resolve(true);
+                    return;
+                }
+                
+                const script = document.createElement('script');
+                script.src = 'https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js';
+                script.onload = () => resolve(true);
+                script.onerror = () => reject(new Error('Failed to load PDF library'));
+                document.head.appendChild(script);
+            });
+        }
+
         // Professional PDF Generation
-        function generateProfessionalPDF(data) {
-            if (typeof jsPDF === 'undefined') {
-                console.error('jsPDF not loaded, cannot generate PDF');
+        async function generateProfessionalPDF(data) {
+            try {
+                // Try to load PDF library if not available
+                await loadPDFLibrary();
+            } catch (error) {
+                console.error('Could not load PDF library:', error);
+                alert('PDF generatie niet beschikbaar. Probeer het later opnieuw.');
                 return;
             }
             
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
+            // Try multiple ways to access jsPDF
+            let jsPDFClass = null;
+            if (window.jspdf && window.jspdf.jsPDF) {
+                jsPDFClass = window.jspdf.jsPDF;
+            } else if (window.jsPDF) {
+                jsPDFClass = window.jsPDF;
+            } else if (typeof jsPDF !== 'undefined') {
+                jsPDFClass = jsPDF;
+            } else {
+                console.error('jsPDF still not available after loading');
+                alert('PDF library kon niet worden geladen.');
+                return;
+            }
             
-            // PDF Configuration
-            const colors = {
-                primary: [30, 58, 138],      // FlowMaster blue
-                secondary: [255, 107, 53],   // Orange accent
-                success: [16, 185, 129],     // Green
-                text: [31, 41, 55],          // Dark gray
-                lightGray: [243, 244, 246]   // Light gray
-            };
-            
-            let yPos = 20;
-            const margin = 20;
+            const doc = new jsPDFClass();
             const pageWidth = doc.internal.pageSize.width;
+            const pageHeight = doc.internal.pageSize.height;
+            const margin = 20;
+            let yPos = 40;
             
-            // Header with Logo Area
-            doc.setFillColor(...colors.primary);
-            doc.rect(0, 0, pageWidth, 40, 'F');
+            // Helper function to check if new page is needed
+            function checkNewPage(additionalSpace = 20) {
+                if (yPos + additionalSpace > pageHeight - 40) {
+                    doc.addPage();
+                    yPos = 30;
+                    return true;
+                }
+                return false;
+            }
             
+            // ====== PROFESSIONAL HEADER ======
+            
+            // Navy blue header background
+            doc.setFillColor(30, 58, 138);
+            doc.rect(0, 0, pageWidth, 80, 'F');
+            
+            // Orange logo area
+            doc.setFillColor(255, 107, 53);
+            doc.roundedRect(margin, 15, 40, 30, 8, 8, 'F');
             doc.setTextColor(255, 255, 255);
-            doc.setFontSize(24);
-            doc.setFont(undefined, 'bold');
-            doc.text('FlowMaster Pro', margin, 25);
-            
-            doc.setFontSize(12);
-            doc.setFont(undefined, 'normal');
-            doc.text('Advanced Recruitment Intelligence Assessment', margin, 32);
-            
-            yPos = 55;
-            
-            // Assessment Results Header
-            doc.setTextColor(...colors.text);
             doc.setFontSize(20);
             doc.setFont(undefined, 'bold');
-            doc.text('Assessment Resultaten', margin, yPos);
-            yPos += 15;
+            doc.text('R', margin + 18, 33);
             
-            // Company Information Box
-            doc.setFillColor(...colors.lightGray);
-            doc.rect(margin, yPos, pageWidth - 2 * margin, 25, 'F');
-            
-            doc.setFontSize(12);
-            doc.setFont(undefined, 'bold');
-            doc.setTextColor(...colors.text);
-            doc.text(`${data.companyName}`, margin + 5, yPos + 8);
-            
-            doc.setFont(undefined, 'normal');
-            doc.text(`Contact: ${data.contactName}`, margin + 5, yPos + 15);
-            doc.text(`Sector: ${data.sectorDisplayName}`, margin + 5, yPos + 22);
-            
-            yPos += 35;
-            
-            // Assessment Score Section
+            // Main title
+            doc.setFontSize(28);
+            doc.text('FlowMaster Pro', margin + 50, 28);
             doc.setFontSize(16);
-            doc.setFont(undefined, 'bold');
-            doc.text('Overall Assessment Score', margin, yPos);
-            yPos += 10;
-            
-            // Score visualization
-            const scoreBarWidth = 120;
-            const scoreBarHeight = 15;
-            const scorePercentage = data.totalScore / 100;
-            
-            // Score bar background
-            doc.setFillColor(...colors.lightGray);
-            doc.rect(margin, yPos, scoreBarWidth, scoreBarHeight, 'F');
-            
-            // Score bar fill
-            doc.setFillColor(...colors.success);
-            doc.rect(margin, yPos, scoreBarWidth * scorePercentage, scoreBarHeight, 'F');
-            
-            // Score text
-            doc.setFontSize(14);
-            doc.setFont(undefined, 'bold');
-            doc.setTextColor(...colors.text);
-            doc.text(`${data.totalScore}%`, margin + scoreBarWidth + 10, yPos + 10);
-            
-            doc.setFontSize(12);
             doc.setFont(undefined, 'normal');
-            doc.text(`Maturity Level: ${data.companyMaturity}`, margin + scoreBarWidth + 10, yPos + 20);
+            doc.text('Wervingsanalyse Rapport', margin + 50, 38);
+            doc.text('Persoonlijke analyse & verbeterplan', margin + 50, 48);
             
-            yPos += 35;
+            // Client info box
+            doc.setFillColor(255, 255, 255, 0.15);
+            doc.roundedRect(margin, 55, pageWidth - 2 * margin, 20, 5, 5, 'F');
+            doc.setFontSize(12);
+            doc.text(`Bedrijf: ${data.companyName}`, margin + 10, 63);
+            doc.text(`Contactpersoon: ${data.contactName}`, margin + 10, 68);
+            doc.text(`Datum: ${new Date().toLocaleDateString('nl-NL')}`, pageWidth - margin - 80, 63);
+            doc.text(`Branche: ${getSectorDisplayName(data.specificSector)}`, pageWidth - margin - 80, 68);
             
-            // Lead Score Section
-            doc.setFontSize(14);
+            // ====== EXECUTIVE SUMMARY ======
+            yPos = 100;
+            doc.setTextColor(30, 58, 138);
+            doc.setFontSize(22);
             doc.setFont(undefined, 'bold');
-            doc.text(`Lead Score: ${data.leadScore}/300`, margin, yPos);
-            doc.text(`Lead Grade: ${data.leadGrade}`, margin + 100, yPos);
+            doc.text('📋 Samenvatting', margin, yPos);
             yPos += 20;
             
-            // Sector Analysis
-            doc.setFontSize(16);
-            doc.setFont(undefined, 'bold');
-            doc.text('Sector Analyse', margin, yPos);
+            doc.setTextColor(60, 60, 60);
+            doc.setFontSize(14);
+            doc.setFont(undefined, 'normal');
+            const summaryText = `${data.companyName} heeft uitstekende mogelijkheden om het recruitment proces te transformeren naar een strategisch voordeel. Je assessment score van ${data.leadScore}/300 (Grade ${data.leadGrade}) toont een sterke basis met duidelijke groeimogelijkheden. Met gerichte aanpassingen kunnen we je werving optimaliseren voor aanzienlijk betere resultaten en kostenbesparing.`;
+            const summaryLines = doc.splitTextToSize(summaryText, pageWidth - 2 * margin);
+            summaryLines.forEach(line => {
+                doc.text(line, margin, yPos);
+                yPos += 6;
+            });
+            
             yPos += 15;
             
-            doc.setFontSize(12);
-            doc.setFont(undefined, 'normal');
-            const sectorText = [
-                `Hoofdcategorie: ${data.industry.charAt(0).toUpperCase() + data.industry.slice(1)}`,
-                `Specifieke Sector: ${data.sectorDisplayName}`,
-                `Bedrijfsgrootte: ${data.companySize} medewerkers (${data.companySizeCategory})`,
-                `Assessment Completeness: ${data.completionRate}%`
+            // ====== KEY METRICS HIGHLIGHTS ======
+            const highlights = [
+                { value: data.leadScore + '/300', label: 'Assessment Score', icon: '🎯' },
+                { value: 'Grade ' + data.leadGrade, label: 'Lead Classificatie', icon: '⭐' },
+                { value: getSectorDisplayName(data.specificSector).split(' ')[0], label: 'Sector Expertise', icon: '💼' },
+                { value: '24u', label: 'Response Time', icon: '⚡' }
             ];
             
-            sectorText.forEach(text => {
-                doc.text(text, margin, yPos);
-                yPos += 8;
+            const boxWidth = (pageWidth - 2 * margin - 15) / 2;
+            const boxHeight = 35;
+            let xPos = margin;
+            
+            highlights.forEach((highlight, index) => {
+                if (index % 2 === 0 && index > 0) {
+                    yPos += boxHeight + 10;
+                    xPos = margin;
+                }
+                
+                // Professional highlight box
+                doc.setDrawColor(255, 107, 53);
+                doc.setLineWidth(2);
+                doc.roundedRect(xPos, yPos, boxWidth, boxHeight, 5, 5);
+                
+                doc.setFillColor(255, 240, 235);
+                doc.roundedRect(xPos + 1, yPos + 1, boxWidth - 2, boxHeight - 2, 4, 4, 'F');
+                
+                doc.setFontSize(22);
+                doc.setFont(undefined, 'bold');
+                doc.setTextColor(255, 107, 53);
+                doc.text(highlight.value.toString(), xPos + 10, yPos + 20);
+                
+                doc.setFontSize(11);
+                doc.setFont(undefined, 'normal');
+                doc.setTextColor(100, 100, 100);
+                doc.text(highlight.label, xPos + 10, yPos + 28);
+                
+                xPos += boxWidth + 15;
             });
             
+            yPos += boxHeight + 30;
+            
+            // ====== DETAILED ANALYSIS ======
+            checkNewPage();
+            
+            doc.setTextColor(30, 58, 138);
+            doc.setFontSize(22);
+            doc.setFont(undefined, 'bold');
+            doc.text('📊 Jouw Analyse Resultaten', margin, yPos);
+            yPos += 20;
+            
+            const detailedMetrics = [
+                { 
+                    label: 'Proces Efficiëntie', 
+                    score: Math.min(Math.floor(data.leadScore / 3), 100), 
+                    insight: 'Optimalisatie kan 30% tijdsbesparing opleveren'
+                },
+                { 
+                    label: 'Kandidaat Sourcing', 
+                    score: Math.min(Math.floor(data.leadScore / 2.8), 100), 
+                    insight: 'LinkedIn strategie kan 45% meer kandidaten genereren'
+                },
+                { 
+                    label: 'Werkgeversmerk Sterkte', 
+                    score: Math.min(Math.floor(data.leadScore / 3.5), 100), 
+                    insight: 'Sterker merk verhoogt acceptatiepercentage met 35%'
+                },
+                { 
+                    label: 'Technology & Automation', 
+                    score: Math.min(Math.floor(data.leadScore / 4), 100), 
+                    insight: 'Moderne tools kunnen kosten per hire halveren'
+                }
+            ];
+            
+            detailedMetrics.forEach(metric => {
+                doc.setTextColor(60, 60, 60);
+                doc.setFontSize(12);
+                doc.setFont(undefined, 'bold');
+                doc.text(metric.label, margin, yPos);
+                doc.text(`${metric.score}/100`, pageWidth - margin - 30, yPos);
+                yPos += 8;
+                
+                // Progress bar
+                doc.setFillColor(230, 230, 230);
+                doc.roundedRect(margin, yPos, pageWidth - 2 * margin - 50, 8, 4, 4, 'F');
+                
+                const fillWidth = ((pageWidth - 2 * margin - 50) * metric.score) / 100;
+                doc.setFillColor(255, 107, 53);
+                doc.roundedRect(margin, yPos, fillWidth, 8, 4, 4, 'F');
+                
+                yPos += 12;
+                
+                doc.setTextColor(100, 100, 100);
+                doc.setFontSize(9);
+                doc.setFont(undefined, 'italic');
+                doc.text(metric.insight, margin, yPos);
+                yPos += 18;
+            });
+            
+            // ====== STRATEGIC RECOMMENDATIONS ======
             yPos += 10;
-            
-            // Service Interest
-            if (data.selectedService) {
-                doc.setFontSize(16);
-                doc.setFont(undefined, 'bold');
-                doc.text('Service Interest', margin, yPos);
-                yPos += 15;
-                
-                doc.setFontSize(12);
-                doc.setFont(undefined, 'normal');
-                doc.text(`Geselecteerde Service: ${data.serviceDisplayName}`, margin, yPos);
-                yPos += 8;
-                doc.text(`Geschatte Waarde: €${data.estimatedValue.toLocaleString('nl-NL')}`, margin, yPos);
-                yPos += 15;
-            }
-            
-            // Challenge Description
-            if (data.challenge) {
-                doc.setFontSize(16);
-                doc.setFont(undefined, 'bold');
-                doc.text('Recruitment Uitdaging', margin, yPos);
-                yPos += 15;
-                
-                doc.setFontSize(12);
-                doc.setFont(undefined, 'normal');
-                const challengeLines = doc.splitTextToSize(data.challenge, pageWidth - 2 * margin);
-                challengeLines.forEach(line => {
-                    doc.text(line, margin, yPos);
-                    yPos += 6;
-                });
-                yPos += 10;
-            }
-            
-            // Lead Tags
-            doc.setFontSize(16);
+            doc.setTextColor(30, 58, 138);
+            doc.setFontSize(22);
             doc.setFont(undefined, 'bold');
-            doc.text('Lead Tags', margin, yPos);
-            yPos += 15;
-            
-            doc.setFontSize(10);
-            doc.setFont(undefined, 'normal');
-            const tagsText = data.leadTags.join(' • ');
-            const tagLines = doc.splitTextToSize(tagsText, pageWidth - 2 * margin);
-            tagLines.forEach(line => {
-                doc.text(line, margin, yPos);
-                yPos += 5;
-            });
-            
-            // New page if needed
-            if (yPos > 250) {
-                doc.addPage();
-                yPos = 20;
-            }
-            
-            yPos += 15;
-            
-            // Recommendations Section
-            doc.setFontSize(16);
-            doc.setFont(undefined, 'bold');
-            doc.text('Aanbevelingen', margin, yPos);
-            yPos += 15;
+            doc.text('🚀 Top 3 Strategische Aanbevelingen', margin, yPos);
+            yPos += 20;
             
             const recommendations = [
-                `Next Action: ${data.nextActionRecommended}`,
-                `Priority Level: ${data.priorityLevel}`,
-                `Estimated Close Date: ${data.estimatedCloseDate}`,
-                `Recommended Follow-up: ${getRecommendedFollowUp(data.leadScore)}`
+                {
+                    title: 'Wervingsproces Versnellen',
+                    priority: 'high',
+                    description: 'Je belangrijkste uitdaging "werving duurt te lang" kunnen we direct aanpakken. Door het aantal sollicitatierondes te verminderen van 4 naar 2 en tegelijk referenties te checken, bespaar je direct 30 dagen op elke nieuwe aanname.'
+                },
+                {
+                    title: 'LinkedIn Effectiever Gebruiken',
+                    priority: 'high',
+                    description: 'Je gebruikt LinkedIn nu op basisniveau. Met slimme zoektechnieken, betere berichten naar kandidaten en het opbouwen van een kandidatennetwerk bereik je 45% meer geschikte kandidaten.'
+                },
+                {
+                    title: 'Werkgeversmerk Versterken',
+                    priority: 'medium',
+                    description: 'Een duidelijk verhaal over waarom werken bij jouw bedrijf uniek is, projecten laten zien en medewerkers als ambassadeurs inzetten verhoogt je aantrekkingskracht significant.'
+                }
             ];
             
-            doc.setFontSize(12);
-            doc.setFont(undefined, 'normal');
-            recommendations.forEach(rec => {
-                doc.text(rec, margin, yPos);
-                yPos += 8;
+            recommendations.forEach((rec, index) => {
+                checkNewPage(50);
+                
+                // Recommendation card
+                doc.setFillColor(248, 250, 252);
+                doc.roundedRect(margin, yPos, pageWidth - 2 * margin, 40, 8, 8, 'F');
+                
+                // Priority badge
+                const priorityColors = {
+                    'high': [239, 68, 68],
+                    'medium': [245, 158, 11],
+                    'low': [34, 197, 94]
+                };
+                doc.setFillColor(...(priorityColors[rec.priority] || priorityColors.medium));
+                doc.roundedRect(pageWidth - margin - 80, yPos + 5, 70, 12, 6, 6, 'F');
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(9);
+                doc.setFont(undefined, 'bold');
+                doc.text(rec.priority.toUpperCase() + ' PRIORITEIT', pageWidth - margin - 75, yPos + 12);
+                
+                // Title and content
+                doc.setTextColor(30, 58, 138);
+                doc.setFontSize(14);
+                doc.setFont(undefined, 'bold');
+                doc.text(`${index + 1}. ${rec.title}`, margin + 10, yPos + 18);
+                
+                doc.setTextColor(60, 60, 60);
+                doc.setFontSize(11);
+                doc.setFont(undefined, 'normal');
+                const recLines = doc.splitTextToSize(rec.description, pageWidth - 2 * margin - 20);
+                let lineY = yPos + 28;
+                recLines.slice(0, 2).forEach(line => {
+                    doc.text(line, margin + 10, lineY);
+                    lineY += 5;
+                });
+                
+                yPos += 50;
             });
             
-            // Footer
-            const footerY = doc.internal.pageSize.height - 20;
+            // ====== SERVICE OFFERINGS ======
+            checkNewPage(80);
+            
+            doc.setTextColor(30, 58, 138);
+            doc.setFontSize(22);
+            doc.setFont(undefined, 'bold');
+            doc.text('🎁 Exclusieve Services voor Assessment Deelnemers', margin, yPos);
+            yPos += 20;
+            
+            // Limited time badge
+            doc.setFillColor(239, 68, 68);
+            doc.roundedRect(margin, yPos, 160, 15, 8, 8, 'F');
+            doc.setTextColor(255, 255, 255);
             doc.setFontSize(10);
-            doc.setTextColor(128, 128, 128);
-            doc.text(`Gegenereerd op: ${new Date().toLocaleDateString('nl-NL')} | Session ID: ${data.sessionId}`, margin, footerY);
-            doc.text('FlowMaster Pro - Advanced Recruitment Intelligence', pageWidth - margin, footerY, { align: 'right' });
+            doc.setFont(undefined, 'bold');
+            const expiryDate = new Date(Date.now() + 14*24*60*60*1000).toLocaleDateString('nl-NL');
+            doc.text(`⏰ BEPERKTE TIJD - GELDIG TOT ${expiryDate}`, margin + 10, yPos + 10);
+            yPos += 25;
+            
+            const services = [
+                { 
+                    title: 'Gratis Strategiesessie', 
+                    value: '€750 waarde', 
+                    desc: '30 min persoonlijke analyse + 3 concrete knelpunten + direct toepasbaar actieplan'
+                },
+                { 
+                    title: 'LinkedIn Recruitment Training', 
+                    value: '€450 waarde', 
+                    desc: '45 min praktijktraining + bewezen zoektechnieken + professionele templates'
+                },
+                { 
+                    title: 'Complete Werkgeversmerk Audit', 
+                    value: '€950 waarde', 
+                    desc: 'Uitgebreide analyse + concurrentenvergelijking + 5 high-impact verbeterpunten'
+                }
+            ];
+            
+            services.forEach(service => {
+                checkNewPage(30);
+                
+                // Service card
+                doc.setDrawColor(255, 107, 53);
+                doc.setLineWidth(1);
+                doc.roundedRect(margin, yPos, pageWidth - 2 * margin, 25, 6, 6);
+                
+                doc.setTextColor(255, 107, 53);
+                doc.setFontSize(12);
+                doc.setFont(undefined, 'bold');
+                doc.text('🎯 ' + service.title, margin + 10, yPos + 10);
+                
+                // Value badge
+                doc.setFillColor(255, 107, 53);
+                doc.roundedRect(pageWidth - margin - 80, yPos + 3, 70, 10, 5, 5, 'F');
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(9);
+                doc.setFont(undefined, 'bold');
+                doc.text(service.value, pageWidth - margin - 75, yPos + 9);
+                
+                doc.setTextColor(100, 100, 100);
+                doc.setFontSize(10);
+                doc.setFont(undefined, 'normal');
+                doc.text(service.desc, margin + 10, yPos + 17);
+                
+                yPos += 35;
+            });
+            
+            // ====== CALL TO ACTION ======
+            yPos += 10;
+            doc.setFillColor(30, 58, 138);
+            doc.roundedRect(margin, yPos, pageWidth - 2 * margin, 35, 10, 10, 'F');
+            
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(16);
+            doc.setFont(undefined, 'bold');
+            doc.text('📧 Kies Je Gratis Service - Exclusief voor Deelnemers', margin + 20, yPos + 15);
+            doc.setFontSize(12);
+            doc.setFont(undefined, 'normal');
+            doc.text('Geen verplichtingen • Geen kleine lettertjes • 100% waardetoevoeging', margin + 20, yPos + 22);
+            doc.text('📞 +31 (0)40 123 4567  |  ✉️ info@recruitin.nl  |  🌐 www.recruitin.nl', margin + 20, yPos + 28);
+            
+            // ====== PROFESSIONAL FOOTER ======
+            const footerY = pageHeight - 25;
+            doc.setDrawColor(255, 107, 53);
+            doc.setLineWidth(1);
+            doc.line(margin, footerY - 5, pageWidth - margin, footerY - 5);
+            
+            doc.setTextColor(120, 120, 120);
+            doc.setFontSize(9);
+            doc.setFont(undefined, 'normal');
+            doc.text('FlowMaster Pro V4 - Advanced Recruitment Intelligence Platform | © 2025 Recruitin B.V.', margin, footerY);
+            doc.text(`Assessment ID: ${data.assessment_id || 'FM-' + Date.now()}`, margin, footerY + 6);
+            doc.text(`Gegenereerd: ${new Date().toLocaleDateString('nl-NL')} ${new Date().toLocaleTimeString('nl-NL')}`, pageWidth - margin - 80, footerY);
+            doc.text('Dit rapport is vertrouwelijk en exclusief voor ' + data.companyName, pageWidth - margin - 120, footerY + 6);
             
             // Save PDF
-            const filename = `FlowMaster_Assessment_${data.companyName.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
-            doc.save(filename);
+            const fileName = `FlowMaster_Professional_${data.companyName.replace(/[^a-zA-Z0-9]/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
+            doc.save(fileName);
             
-            console.log('Professional PDF generated successfully:', filename);
-            return filename;
+            console.log('Professional PDF generated successfully:', fileName);
+            return fileName;
         }
         
-        // Download Assessment Report Function
+        // Download Assessment Report Function - FIXED
         function downloadAssessmentReport() {
             const sessionData = sessionStorage.getItem('flowmasterAssessment');
             
             if (sessionData) {
                 try {
-                    const assessmentData = JSON.parse(sessionData);
+                    const rawData = JSON.parse(sessionData);
+                    console.log('Raw assessment data:', rawData);
+                    
+                    // Transform data to correct format for PDF generation
+                    const assessmentData = {
+                        // Core company info
+                        companyName: rawData.companyName || formData.companyName || 'Onbekend Bedrijf',
+                        contactName: rawData.contactName || formData.contactName || 'Onbekende Contactpersoon',
+                        contactEmail: rawData.contactEmail || formData.contactEmail || '',
+                        contactPhone: rawData.contactPhone || formData.contactPhone || '',
+                        
+                        // Scores and assessment results
+                        totalScore: rawData.totalScore || formData.totalScore || 0,
+                        leadScore: rawData.leadScore || calculateLeadScore(rawData) || 0,
+                        leadGrade: rawData.leadGrade || getLeadGrade(rawData.leadScore || calculateLeadScore(rawData)) || 'D',
+                        
+                        // Sector information
+                        specificSector: rawData.specificSector || formData.specificSector || 'unknown',
+                        sectorDisplayName: getSectorDisplayName(rawData.specificSector || formData.specificSector),
+                        
+                        // Company details
+                        companySize: rawData.companySize || formData.companySize || 'Onbekend',
+                        companyMaturity: getMaturityLevel(rawData.totalScore || formData.totalScore || 0),
+                        
+                        // Service selection
+                        selectedService: rawData.selectedService || formData.selectedService || 'basic',
+                        
+                        // Timestamps
+                        timestamp: rawData.timestamp || new Date().toISOString(),
+                        
+                        // Assessment metadata
+                        assessment_id: rawData.assessment_id || 'FM-' + Date.now(),
+                        source: rawData.source || 'FlowMaster Pro V4'
+                    };
+                    
+                    console.log('Processed assessment data for PDF:', assessmentData);
                     
                     // Show download preparation message
                     const downloadBtn = document.querySelector('[onclick="downloadAssessmentReport()"]');
@@ -4237,7 +4477,7 @@
         document.getElementById('contactName').addEventListener('input', updateStep2Button);
         document.getElementById('contactEmail').addEventListener('input', updateSubmitButton);
         document.getElementById('contactPhone').addEventListener('input', updateSubmitButton);
-        document.getElementById('privacyConsent').addEventListener('change', updateSubmitButton);
+        document.getElementById('privacyConsent').addEventListener('change', handlePrivacyChange);
 
         // Initialize
         updateProgress();
