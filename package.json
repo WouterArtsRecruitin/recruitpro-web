@@ -1,0 +1,116 @@
+{
+  "name": "flowmaster-pro-v4",
+  "version": "4.1.0",
+  "description": "FlowMaster Pro V4 Improved - Nederlandse Recruitment Intelligence Platform",
+  "main": "index.html",
+  "scripts": {
+    "start": "python -m http.server 8000",
+    "serve": "npx serve .",
+    "build": "echo 'Static site - no build required'",
+    "test": "node test/run-tests.js",
+    "test-pdf": "open test-pdf-generator.html",
+    "deploy-netlify": "netlify deploy --prod --dir=.",
+    "deploy-vercel": "vercel --prod",
+    "validate": "html-validate *.html",
+    "lighthouse": "lighthouse http://localhost:8000 --output=html --output-path=./reports/lighthouse.html",
+    "optimize": "node scripts/optimize-assets.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/WouterArtsRecruitin/recruitpro-web.git"
+  },
+  "keywords": [
+    "recruitment",
+    "assessment",
+    "netherlands",
+    "technical-recruitment",
+    "lead-scoring",
+    "pdf-generation",
+    "google-drive",
+    "zapier",
+    "pipedrive"
+  ],
+  "author": {
+    "name": "Wouter Arts",
+    "email": "wouter.arts@recruitin.nl",
+    "company": "RecruitIn B.V."
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/WouterArtsRecruitin/recruitpro-web#readme",
+  "bugs": {
+    "url": "https://github.com/WouterArtsRecruitin/recruitpro-web/issues"
+  },
+  "devDependencies": {
+    "html-validate": "^8.0.0",
+    "lighthouse": "^11.0.0",
+    "serve": "^14.0.0"
+  },
+  "dependencies": {},
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead",
+    "not ie 11"
+  ],
+  "config": {
+    "version": "V4.1.0",
+    "release_date": "2024-01-27",
+    "google_drive_folder": "1Fli-d3KKJSkqHr8PSPOne46eftjHPFux",
+    "backup_account": "artsrecruitin@gmail.com"
+  },
+  "flowmaster": {
+    "features": [
+      "Nederlandse Technische Sectoren (6)",
+      "Advanced Lead Scoring (0-300)",
+      "Multi-Step Assessment (24+ vragen)",
+      "Professional PDF Generation",
+      "Google Drive Sync",
+      "Multi-Webhook Architecture",
+      "A/B Testing Framework",
+      "Mobile Responsive Design",
+      "GDPR Compliant",
+      "Analytics Integration"
+    ],
+    "integrations": {
+      "zapier": {
+        "main_webhook": "https://hooks.zapier.com/hooks/catch/19234567/flowmaster-v4-main/",
+        "pdf_sync": "https://hooks.zapier.com/hooks/catch/19234567/gdrive-pdf-sync/",
+        "email_automation": "https://hooks.zapier.com/hooks/catch/19234567/nl-email-templates/",
+        "ab_analytics": "https://hooks.zapier.com/hooks/catch/19234567/ab-analytics-v4/"
+      },
+      "pipedrive": {
+        "api_endpoint": "https://recruitinbv.pipedrive.com/api/v1",
+        "custom_fields": 25,
+        "pipeline_stages": 8,
+        "automation_rules": 6
+      },
+      "google_drive": {
+        "folder_id": "1Fli-d3KKJSkqHr8PSPOne46eftjHPFux",
+        "backup_account": "artsrecruitin@gmail.com",
+        "auto_sync": true
+      },
+      "analytics": {
+        "google_analytics": "GA4",
+        "facebook_pixel": "enabled",
+        "linkedin_insight": "enabled",
+        "custom_events": true
+      }
+    },
+    "performance": {
+      "lighthouse_score": ">90",
+      "load_time": "<2s",
+      "pdf_generation": "~2.1s",
+      "mobile_score": "100/100"
+    },
+    "security": {
+      "https_only": true,
+      "xss_protection": true,
+      "gdpr_compliant": true,
+      "no_pii_logging": true
+    }
+  }
+}

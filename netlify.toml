@@ -1,0 +1,128 @@
+[build]
+  # Build command (not needed for static site)
+  command = "echo 'FlowMaster Pro V4 - Static build complete'"
+  
+  # Publish directory
+  publish = "."
+  
+  # Environment variables
+  [build.environment]
+    NODE_VERSION = "18"
+
+# Headers for security and performance
+[[headers]]
+  for = "/*"
+  [headers.values]
+    # Security headers
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+    
+    # Cache control
+    Cache-Control = "public, max-age=31536000"
+    
+    # CORS for API calls
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Methods = "GET, POST, OPTIONS"
+    Access-Control-Allow-Headers = "Content-Type, Authorization"
+
+# Special caching for HTML files
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=3600"
+
+# API endpoint rewrites for webhooks
+[[redirects]]
+  from = "/api/assessment"
+  to = "https://hooks.zapier.com/hooks/catch/19234567/flowmaster-v4-main/"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/pdf-sync"
+  to = "https://hooks.zapier.com/hooks/catch/19234567/gdrive-pdf-sync/"
+  status = 200
+  force = true
+
+# Form handling for Netlify Forms (fallback)
+[[redirects]]
+  from = "/submit"
+  to = "/thanks.html"
+  status = 200
+  conditions = {Role = ["form-submissions"]}
+
+# SPA fallback for deep links
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Custom error pages
+[[redirects]]
+  from = "/404"
+  to = "/404.html"
+  status = 404
+
+# Prerender for SEO
+[build.processing]
+  skip_processing = false
+
+[build.processing.css]
+  bundle = true
+  minify = true
+
+[build.processing.js]
+  bundle = false
+  minify = true
+
+[build.processing.html]
+  pretty_urls = true
+
+# Edge functions for dynamic content
+[[edge_functions]]
+  path = "/api/*"
+  function = "assessment-handler"
+
+# Environment-specific settings
+[context.production]
+  [context.production.environment]
+    ENVIRONMENT = "production"
+    ANALYTICS_ENABLED = "true"
+    DEBUG_MODE = "false"
+
+[context.deploy-preview]
+  [context.deploy-preview.environment]
+    ENVIRONMENT = "staging"
+    ANALYTICS_ENABLED = "false"
+    DEBUG_MODE = "true"
+
+[context.branch-deploy]
+  [context.branch-deploy.environment]
+    ENVIRONMENT = "development"
+    ANALYTICS_ENABLED = "false"
+    DEBUG_MODE = "true"
+
+# Plugin configuration
+[[plugins]]
+  package = "@netlify/plugin-lighthouse"
+  
+  [plugins.inputs.thresholds]
+    performance = 0.9
+    accessibility = 0.9
+    best-practices = 0.9
+    seo = 0.9
+
+[[plugins]]
+  package = "netlify-plugin-submit-sitemap"
+  
+  [plugins.inputs]
+    baseUrl = "https://flowmaster-pro.netlify.app"
+    sitemapPath = "/sitemap.xml"
+    providers = [
+      "google",
+      "bing",
+      "yandex"
+    ]

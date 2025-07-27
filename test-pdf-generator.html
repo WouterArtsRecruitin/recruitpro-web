@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlowMaster Pro V4 - PDF Rapport Generator Test</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: white;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            color: #1F2937;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 3px solid #FF6B35;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            color: #1E3A8A;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            color: #64748B;
+        }
+
+        .test-section {
+            background: #F8FAFC;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+            border-left: 5px solid #10B981;
+        }
+
+        .test-section h2 {
+            color: #1E3A8A;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .sample-data {
+            background: #E5F3FF;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 0.9rem;
+            color: #1E3A8A;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 20px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #FF6B35 0%, #F59E0B 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 200px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(255, 107, 53, 0.3);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+        }
+
+        .btn-secondary:hover {
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .result {
+            background: #F0FDF4;
+            border: 1px solid #10B981;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+        }
+
+        .result h3 {
+            color: #065F46;
+            margin-bottom: 10px;
+        }
+
+        .result p {
+            color: #047857;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #10B981;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-weight: 600;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .score-preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .score-card {
+            background: white;
+            border: 2px solid #E5E7EB;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .score-card:hover {
+            border-color: #FF6B35;
+            transform: translateY(-5px);
+        }
+
+        .score-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #FF6B35;
+            margin-bottom: 10px;
+        }
+
+        .score-label {
+            color: #64748B;
+            font-size: 0.9rem;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid #E5E7EB;
+            color: #64748B;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            .buttons {
+                flex-direction: column;
+            }
+            
+            .score-preview {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 FlowMaster Pro V4</h1>
+            <p>PDF Rapport Generator - Test Omgeving</p>
+        </div>
+
+        <div class="test-section">
+            <h2>📊 Test Sample Data</h2>
+            <p>Deze test gebruikt realistische Nederlandse bedrijfsdata om de PDF generator te testen.</p>
+            
+            <div class="sample-data">
+                <strong>Bedrijf:</strong> TechnoMetaal Amsterdam BV<br>
+                <strong>Sector:</strong> Machinebouw & Equipment<br>
+                <strong>Grootte:</strong> 51-250 werknemers<br>
+                <strong>Contact:</strong> Jan van der Berg (j.vandeberg@technometaal.nl)<br>
+                <strong>Lead Score:</strong> 245/300 (Grade A+)<br>
+                <strong>Assessment Duur:</strong> 387 seconden<br>
+                <strong>Voltooiing:</strong> 92%
+            </div>
+
+            <div class="score-preview">
+                <div class="score-card">
+                    <div class="score-number">245</div>
+                    <div class="score-label">Lead Score</div>
+                </div>
+                <div class="score-card">
+                    <div class="score-number">A+</div>
+                    <div class="score-label">Grade</div>
+                </div>
+                <div class="score-card">
+                    <div class="score-number">92%</div>
+                    <div class="score-label">Voltooid</div>
+                </div>
+                <div class="score-card">
+                    <div class="score-number">€28K</div>
+                    <div class="score-label">Est. Waarde</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>🧪 PDF Generator Tests</h2>
+            <div class="buttons">
+                <button class="btn" onclick="generateTestPDF()">
+                    📄 Genereer Test PDF
+                </button>
+                <button class="btn btn-secondary" onclick="generateWithGoogleDriveSync()">
+                    🗂️ Test met Google Drive Sync
+                </button>
+                <button class="btn" onclick="generateMultiplePDFs()">
+                    📚 Genereer 3 Test PDFs
+                </button>
+                <button class="btn btn-secondary" onclick="showPDFPreview()">
+                    👁️ Bekijk PDF Preview
+                </button>
+            </div>
+        </div>
+
+        <div id="result" class="result">
+            <h3>✅ PDF Succesvol Gegenereerd!</h3>
+            <p id="result-text"></p>
+        </div>
+
+        <div class="test-section">
+            <h2>🔍 Test Resultaten</h2>
+            <div id="test-log">
+                <p>Klik op een van de test knoppen om te beginnen...</p>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>FlowMaster Pro V4 - Advanced Recruitment Intelligence Platform</p>
+            <p>Google Drive Sync: artsrecruitin@gmail.com</p>
+            <p>© 2024 RecruitIn - Test Environment</p>
+        </div>
+    </div>
+
+    <div id="notification" class="notification"></div>
+
+    <script>
+        // Test data voor PDF generatie
+        const testAssessmentData = {
+            // Bedrijf informatie
+            bedrijfsnaam: "TechnoMetaal Amsterdam BV",
+            sector: "machinebouw",
+            werknemers: "51-250",
+            
+            // Contact gegevens
+            contact: {
+                naam: "Jan van der Berg",
+                email: "j.vandeberg@technometaal.nl",
+                telefoon: "+31 20 123 4567",
+                functie: "HR Manager"
+            },
+            
+            // Assessment resultaten
+            leadScore: {
+                total: 245,
+                grade: "A+",
+                sizeScore: 90,
+                sectorScore: 95,
+                engagementScore: 60
+            },
+            
+            // Metadata
+            duration: 387,
+            completionRate: 92,
+            timestamp: new Date().toISOString(),
+            sessionId: "fmp4_test_" + Date.now(),
+            
+            // Nederlandse specifieke data
+            maturityLevel: "Gevestigd (5-15 jaar)",
+            technologyAdoption: "Early Adopter",
+            challenges: [
+                "Vinden van ervaren machinebouw engineers",
+                "Concurrentie om software ontwikkelaars",
+                "Lange doorlooptijden recruitment proces"
+            ],
+            
+            // A/B testing data
+            abTestVariants: {
+                header: "variant_b_nl",
+                flow: "sector_first",
+                cta: "persoonlijk_gesprek"
+            },
+            
+            // Sector insights
+            sectorInsights: "De machinebouw sector groeit met 15% door digitalisering en Industry 4.0. Er is grote vraag naar engineers met kennis van automatisering en robotica.",
+            
+            quickWins: [
+                {
+                    title: "Optimaliseer vacatureteksten",
+                    description: "Gebruik technische specificaties en concrete projectvoorbeelden",
+                    impact: "30% meer gekwalificeerde reacties"
+                },
+                {
+                    title: "LinkedIn recruitment strategie",
+                    description: "Focus op engineering groepen en technische communities",
+                    impact: "50% betere candidate quality"
+                },
+                {
+                    title: "Employee referral programma",
+                    description: "Beloon medewerkers voor technische aanbevelingen",
+                    impact: "Tijd-tot-plaatsing halvering"
+                }
+            ]
+        };
+
+        // Notification systeem
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification show ${type}`;
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 4000);
+        }
+
+        // Log test resultaten
+        function logTestResult(message) {
+            const timestamp = new Date().toLocaleTimeString('nl-NL');
+            const testLog = document.getElementById('test-log');
+            const logEntry = document.createElement('div');
+            logEntry.innerHTML = `<strong>[${timestamp}]</strong> ${message}`;
+            logEntry.style.padding = '10px';
+            logEntry.style.borderBottom = '1px solid #E5E7EB';
+            testLog.appendChild(logEntry);
+            testLog.scrollTop = testLog.scrollHeight;
+        }
+
+        // PDF Generator Class (Simplified voor testing)
+        class TestPDFGenerator {
+            constructor() {
+                this.brandColors = {
+                    primary: '#1E3A8A',
+                    secondary: '#FF6B35',
+                    accent: '#10B981'
+                };
+            }
+
+            generateReport(assessmentData) {
+                try {
+                    const { jsPDF } = window.jsPDF;
+                    const doc = new jsPDF();
+
+                    // Header met branding
+                    this.addHeader(doc, assessmentData);
+                    
+                    // Bedrijf informatie
+                    this.addCompanyInfo(doc, assessmentData);
+                    
+                    // Assessment resultaten
+                    this.addAssessmentResults(doc, assessmentData);
+                    
+                    // Nederlandse sector analyse
+                    this.addSectorAnalysis(doc, assessmentData);
+                    
+                    // Quick wins aanbevelingen
+                    this.addQuickWins(doc, assessmentData);
+                    
+                    // Footer
+                    this.addFooter(doc);
+
+                    // Genereer filename
+                    const timestamp = new Date().toISOString().slice(0, 19).replace(/[:-]/g, '');
+                    const companyName = assessmentData.bedrijfsnaam.replace(/[^a-zA-Z0-9]/g, '');
+                    const filename = `FlowMaster-Test-${companyName}-${timestamp}.pdf`;
+
+                    // Download PDF
+                    doc.save(filename);
+
+                    return filename;
+
+                } catch (error) {
+                    console.error('PDF Generation Error:', error);
+                    throw error;
+                }
+            }
+
+            addHeader(doc, data) {
+                // Blauwe header achtergrond
+                doc.setFillColor(30, 58, 138);
+                doc.rect(0, 0, 210, 35, 'F');
+
+                // Logo placeholder
+                doc.setFillColor(255, 255, 255);
+                doc.rect(15, 8, 20, 20, 'F');
+                doc.setTextColor(30, 58, 138);
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(12);
+                doc.text('FM', 22, 20);
+
+                // Titel
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(20);
+                doc.setFont('helvetica', 'bold');
+                doc.text('FlowMaster Pro V4 - TEST RAPPORT', 45, 18);
+                
+                doc.setFontSize(12);
+                doc.setFont('helvetica', 'normal');
+                doc.text('Nederlandse Recruitment Intelligence', 45, 26);
+
+                // Datum
+                doc.setFontSize(10);
+                const date = new Date().toLocaleDateString('nl-NL', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+                doc.text(`Test uitgevoerd op: ${date}`, 130, 20);
+            }
+
+            addCompanyInfo(doc, data) {
+                let yPos = 50;
+
+                doc.setTextColor(0, 0, 0);
+                doc.setFontSize(16);
+                doc.setFont('helvetica', 'bold');
+                doc.text('📊 Bedrijfsinformatie', 20, yPos);
+
+                yPos += 15;
+                doc.setFontSize(11);
+                doc.setFont('helvetica', 'normal');
+
+                const companyInfo = [
+                    ['Bedrijfsnaam:', data.bedrijfsnaam],
+                    ['Sector:', this.getSectorName(data.sector)],
+                    ['Aantal werknemers:', data.werknemers],
+                    ['Contactpersoon:', data.contact?.naam || 'Test Contact'],
+                    ['E-mail:', data.contact?.email || 'test@example.com'],
+                    ['Telefoon:', data.contact?.telefoon || '+31 20 000 0000'],
+                    ['Sessie ID:', data.sessionId],
+                    ['Test Tijdstempel:', new Date().toLocaleString('nl-NL')]
+                ];
+
+                companyInfo.forEach(([label, value]) => {
+                    doc.setFont('helvetica', 'bold');
+                    doc.text(label, 20, yPos);
+                    doc.setFont('helvetica', 'normal');
+                    doc.text(value, 80, yPos);
+                    yPos += 7;
+                });
+            }
+
+            addAssessmentResults(doc, data) {
+                let yPos = 140;
+
+                doc.setFontSize(16);
+                doc.setFont('helvetica', 'bold');
+                doc.text('🎯 Assessment Resultaten', 20, yPos);
+
+                yPos += 15;
+
+                // Lead Score visualisatie (vereenvoudigd)
+                const score = data.leadScore.total;
+                const grade = data.leadScore.grade;
+                
+                // Score box
+                doc.setFillColor(240, 240, 240);
+                doc.rect(20, yPos, 170, 25, 'F');
+                
+                // Score kleur bepalen
+                if (score >= 240) {
+                    doc.setFillColor(16, 185, 129); // Groen
+                } else if (score >= 180) {
+                    doc.setFillColor(245, 158, 11); // Oranje
+                } else {
+                    doc.setFillColor(239, 68, 68); // Rood
+                }
+                
+                doc.rect(25, yPos + 5, (score / 300) * 160, 15, 'F');
+
+                // Score tekst
+                doc.setTextColor(0, 0, 0);
+                doc.setFontSize(14);
+                doc.setFont('helvetica', 'bold');
+                doc.text(`Lead Score: ${score}/300 (Grade ${grade})`, 30, yPos + 15);
+
+                yPos += 35;
+
+                // Score breakdown
+                doc.setFontSize(11);
+                doc.setFont('helvetica', 'normal');
+                doc.text(`• Bedrijfsgrootte score: ${data.leadScore.sizeScore} punten`, 25, yPos);
+                doc.text(`• Sector complexiteit: ${data.leadScore.sectorScore} punten`, 25, yPos + 7);
+                doc.text(`• Engagement score: ${data.leadScore.engagementScore} punten`, 25, yPos + 14);
+                doc.text(`• Assessment volledigheid: ${data.completionRate}%`, 25, yPos + 21);
+                doc.text(`• Tijd besteed: ${Math.round(data.duration / 60)} minuten`, 25, yPos + 28);
+            }
+
+            addSectorAnalysis(doc, data) {
+                let yPos = 220;
+
+                doc.setFontSize(14);
+                doc.setFont('helvetica', 'bold');
+                doc.text('🔧 Nederlandse Sector Analyse', 20, yPos);
+
+                yPos += 10;
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'normal');
+                
+                const sectorText = data.sectorInsights || "Sector analyse niet beschikbaar voor test data.";
+                const lines = doc.splitTextToSize(sectorText, 170);
+                lines.forEach(line => {
+                    doc.text(line, 20, yPos);
+                    yPos += 5;
+                });
+
+                yPos += 5;
+                doc.setFont('helvetica', 'bold');
+                doc.text('Uitdagingen geïdentificeerd:', 20, yPos);
+                yPos += 7;
+                
+                doc.setFont('helvetica', 'normal');
+                data.challenges.forEach((challenge, index) => {
+                    doc.text(`${index + 1}. ${challenge}`, 25, yPos);
+                    yPos += 6;
+                });
+            }
+
+            addQuickWins(doc, data) {
+                // Nieuwe pagina voor quick wins
+                doc.addPage();
+                let yPos = 30;
+
+                doc.setFontSize(16);
+                doc.setFont('helvetica', 'bold');
+                doc.text('🚀 Nederlandse Quick Wins', 20, yPos);
+
+                yPos += 15;
+                
+                data.quickWins.forEach((win, index) => {
+                    doc.setFontSize(12);
+                    doc.setFont('helvetica', 'bold');
+                    doc.text(`${index + 1}. ${win.title}`, 20, yPos);
+                    
+                    yPos += 8;
+                    doc.setFontSize(10);
+                    doc.setFont('helvetica', 'normal');
+                    const descLines = doc.splitTextToSize(win.description, 170);
+                    descLines.forEach(line => {
+                        doc.text(line, 25, yPos);
+                        yPos += 5;
+                    });
+                    
+                    yPos += 3;
+                    doc.setFont('helvetica', 'italic');
+                    doc.text(`💡 Impact: ${win.impact}`, 25, yPos);
+                    yPos += 12;
+                });
+            }
+
+            addFooter(doc) {
+                const pageHeight = 297; // A4 height
+                const footerY = pageHeight - 20;
+
+                doc.setTextColor(100, 100, 100);
+                doc.setFontSize(8);
+                doc.setFont('helvetica', 'normal');
+                
+                doc.text('FlowMaster Pro V4 - TEST OMGEVING', 20, footerY);
+                doc.text('Google Drive Sync: artsrecruitin@gmail.com', 20, footerY + 5);
+                doc.text('© 2024 RecruitIn - Alle rechten voorbehouden', 20, footerY + 10);
+                
+                // Test stamp
+                doc.setTextColor(255, 0, 0);
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'bold');
+                doc.text('*** TEST DOCUMENT ***', 130, footerY);
+            }
+
+            getSectorName(sectorId) {
+                const sectors = {
+                    'bouw': 'Bouw & Constructie',
+                    'installatie': 'Installatietechniek (W/E/Klimaat)',
+                    'metaal': 'Metaalbewerking & Industrie',
+                    'machinebouw': 'Machinebouw & Equipment',
+                    'hightech': 'High-tech & Elektronica',
+                    'andere': 'Andere technische sector'
+                };
+                return sectors[sectorId] || 'Test Sector';
+            }
+        }
+
+        // Test functions
+        function generateTestPDF() {
+            logTestResult('🧪 Start PDF generatie test...');
+            
+            try {
+                const pdfGenerator = new TestPDFGenerator();
+                const filename = pdfGenerator.generateReport(testAssessmentData);
+                
+                logTestResult(`✅ PDF succesvol gegenereerd: ${filename}`);
+                showNotification('✅ Test PDF gegenereerd en gedownload!');
+                
+                document.getElementById('result').classList.add('show');
+                document.getElementById('result-text').textContent = `Bestand: ${filename}`;
+                
+            } catch (error) {
+                logTestResult(`❌ PDF generatie gefaald: ${error.message}`);
+                showNotification('❌ PDF generatie mislukt!', 'error');
+                console.error('PDF Generation Error:', error);
+            }
+        }
+
+        function generateWithGoogleDriveSync() {
+            logTestResult('🗂️ Test Google Drive sync simulatie...');
+            
+            generateTestPDF();
+            
+            // Simuleer Google Drive sync
+            setTimeout(() => {
+                const driveUrl = `https://drive.google.com/drive/folders/1Fli-d3KKJSkqHr8PSPOne46eftjHPFux`;
+                logTestResult(`📁 Google Drive sync gesimuleerd naar: ${driveUrl}`);
+                logTestResult('💾 Backup account: artsrecruitin@gmail.com');
+                showNotification('🗂️ Google Drive sync gesimuleerd!');
+            }, 2000);
+        }
+
+        function generateMultiplePDFs() {
+            logTestResult('📚 Genereer meerdere test PDFs...');
+            
+            const testScenarios = [
+                { ...testAssessmentData, bedrijfsnaam: "Test Bedrijf A", leadScore: { ...testAssessmentData.leadScore, total: 280, grade: "A+" }},
+                { ...testAssessmentData, bedrijfsnaam: "Test Bedrijf B", leadScore: { ...testAssessmentData.leadScore, total: 190, grade: "A" }},
+                { ...testAssessmentData, bedrijfsnaam: "Test Bedrijf C", leadScore: { ...testAssessmentData.leadScore, total: 140, grade: "C" }}
+            ];
+            
+            const pdfGenerator = new TestPDFGenerator();
+            
+            testScenarios.forEach((scenario, index) => {
+                setTimeout(() => {
+                    try {
+                        const filename = pdfGenerator.generateReport(scenario);
+                        logTestResult(`✅ PDF ${index + 1}/3 gegenereerd: ${filename}`);
+                        
+                        if (index === testScenarios.length - 1) {
+                            showNotification('📚 Alle 3 test PDFs gegenereerd!');
+                        }
+                    } catch (error) {
+                        logTestResult(`❌ PDF ${index + 1} gefaald: ${error.message}`);
+                    }
+                }, index * 1000);
+            });
+        }
+
+        function showPDFPreview() {
+            logTestResult('👁️ PDF preview data weergave...');
+            
+            const previewData = {
+                'Bedrijf': testAssessmentData.bedrijfsnaam,
+                'Lead Score': `${testAssessmentData.leadScore.total}/300 (${testAssessmentData.leadScore.grade})`,
+                'Sector': testAssessmentData.sector,
+                'Volledigheid': `${testAssessmentData.completionRate}%`,
+                'Duur': `${Math.round(testAssessmentData.duration / 60)} minuten`,
+                'Challenges': testAssessmentData.challenges.length + ' geïdentificeerd',
+                'Quick Wins': testAssessmentData.quickWins.length + ' aanbevelingen',
+                'A/B Variants': JSON.stringify(testAssessmentData.abTestVariants)
+            };
+            
+            Object.entries(previewData).forEach(([key, value]) => {
+                logTestResult(`📋 ${key}: ${value}`);
+            });
+            
+            showNotification('👁️ PDF preview data gelogd!');
+        }
+
+        // Auto-start melding
+        window.addEventListener('load', () => {
+            showNotification('🎯 FlowMaster PDF Test omgeving geladen!');
+            logTestResult('🚀 FlowMaster Pro V4 PDF Generator Test gestart');
+            logTestResult('📁 Google Drive folder: 1Fli-d3KKJSkqHr8PSPOne46eftjHPFux');
+            logTestResult('💾 Backup account: artsrecruitin@gmail.com');
+        });
+    </script>
+</body>
+</html>

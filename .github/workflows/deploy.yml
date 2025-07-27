@@ -1,0 +1,101 @@
+name: Deploy FlowMaster Pro V4
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci --only=dev
+    
+    - name: Validate HTML
+      run: |
+        npx html-validate index.html
+        npx html-validate test-pdf-generator.html
+    
+    - name: Check file structure
+      run: |
+        test -f index.html
+        test -f test-pdf-generator.html
+        test -f netlify.toml
+        test -f vercel.json
+        test -d library/
+        test -d docs/
+    
+    - name: Performance audit
+      run: |
+        npm install -g lighthouse
+        npm run start &
+        sleep 5
+        lighthouse http://localhost:8000 --output=json --output-path=./lighthouse-results.json --chrome-flags="--headless"
+    
+    - name: Upload lighthouse results
+      uses: actions/upload-artifact@v3
+      with:
+        name: lighthouse-results
+        path: lighthouse-results.json
+
+  deploy-netlify:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Deploy to Netlify
+      uses: nwtgck/actions-netlify@v2.0
+      with:
+        publish-dir: '.'
+        production-branch: main
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        deploy-message: "Deploy FlowMaster Pro V4 - ${{ github.event.head_commit.message }}"
+        enable-pull-request-comment: true
+        enable-commit-comment: true
+        overwrites-pull-request-comment: true
+      env:
+        NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+        NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+
+  deploy-vercel:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Deploy to Vercel
+      uses: amondnet/vercel-action@v25
+      with:
+        vercel-token: ${{ secrets.VERCEL_TOKEN }}
+        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+        vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+        vercel-args: '--prod'
+
+  notify-success:
+    needs: [deploy-netlify, deploy-vercel]
+    runs-on: ubuntu-latest
+    if: success()
+    
+    steps:
+    - name: Notify deployment success
+      run: |
+        echo "🎉 FlowMaster Pro V4 successfully deployed!"
+        echo "✅ Netlify deployment complete"
+        echo "✅ Vercel deployment complete"
+        echo "🔗 Live URLs will be available shortly"

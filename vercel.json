@@ -1,0 +1,121 @@
+{
+  "version": 2,
+  "name": "flowmaster-pro-v4",
+  "alias": ["flowmaster-pro.vercel.app"],
+  
+  "builds": [
+    {
+      "src": "*.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "assets/**",
+      "use": "@vercel/static"
+    }
+  ],
+  
+  "routes": [
+    {
+      "src": "/api/assessment",
+      "dest": "https://hooks.zapier.com/hooks/catch/19234567/flowmaster-v4-main/",
+      "methods": ["POST", "OPTIONS"]
+    },
+    {
+      "src": "/api/pdf-sync", 
+      "dest": "https://hooks.zapier.com/hooks/catch/19234567/gdrive-pdf-sync/",
+      "methods": ["POST", "OPTIONS"]
+    },
+    {
+      "src": "/api/analytics",
+      "dest": "https://hooks.zapier.com/hooks/catch/19234567/ab-analytics-v4/",
+      "methods": ["POST", "OPTIONS"]
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/$1"
+    }
+  ],
+  
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-Content-Type-Options", 
+          "value": "nosniff"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET, POST, OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type, Authorization"
+        }
+      ]
+    },
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    }
+  ],
+  
+  "redirects": [
+    {
+      "source": "/assessment",
+      "destination": "/index.html#assessment"
+    },
+    {
+      "source": "/test",
+      "destination": "/test-pdf-generator.html"
+    }
+  ],
+  
+  "functions": {
+    "app/api/assessment.js": {
+      "maxDuration": 30
+    }
+  },
+  
+  "env": {
+    "FLOWMASTER_VERSION": "V4.1.0",
+    "GOOGLE_DRIVE_FOLDER": "1Fli-d3KKJSkqHr8PSPOne46eftjHPFux",
+    "BACKUP_ACCOUNT": "artsrecruitin@gmail.com",
+    "ENVIRONMENT": "production"
+  },
+  
+  "build": {
+    "env": {
+      "NODE_VERSION": "18.x"
+    }
+  },
+  
+  "cleanUrls": true,
+  "trailingSlash": false,
+  
+  "github": {
+    "silent": true,
+    "autoAlias": false
+  }
+}
